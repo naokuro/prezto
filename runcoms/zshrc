@@ -11,3 +11,92 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
 fi
 
 # Customize to your needs...
+# 履歴ファイルの保存先
+export HISTFILE=${HOME}/.zsh_history
+
+# メモリに保存される履歴の件数
+export HISTSIZE=1000
+
+# 履歴ファイルに保存される履歴の件数
+export SAVEHIST=100000
+
+# 重複を記録しない
+setopt hist_ignore_dups
+
+# 開始と終了を記録
+setopt EXTENDED_HISTORY
+
+#
+# ALIASES
+#
+# GENERAL
+alias ll='ls -la'
+
+# GIT
+alias g='git'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gl='git pull'
+alias gp='git push'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias gst='git stash'
+alias gb='git branch'
+alias gba='git branch -a'
+alias gbd='git branch --delete'
+alias gf='git fetch'
+alias gpr='git pull-request'
+
+# RUBY
+alias be="bundle exec"
+alias r='rails'
+
+# Docker
+alias d='docker'
+alias dc='docker-compose' # sorry ex-dc...
+alias dc_build_up='docker-compose rm -fv && docker-compose build && docker-compose up'
+alias rm_docker_images='docker images -qf dangling=true | xargs docker rmi'
+alias rm_docker_containers='docker ps -aqf status=exited | xargs docker rm -v' # rm with volumes
+alias rm_docker_volumes='docker volume ls -qf dangling=true | xargs docker volume rm'
+alias rm_docker_compose_containers='docker-compose rm -fv'
+#停止中のコンテナすべて
+#紐付いていないデータボリュームすべて
+#紐付いていないネットワークすべて
+#紐付いていないイメージすべて
+alias rm_docker_all='docker system prune'
+
+#
+# ENVIRONMENTS
+#
+
+# RUBY
+eval "$(rbenv init -)"
+
+# GO
+export GOPATH=~/go
+export PATH=$PATH:$GOPATH/bin
+
+# nodebrew
+export PATH=$HOME/.nodebrew/current/bin:$PATH
+
+# Android
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+
+# hub
+eval "$(hub alias -s)"
+
+#######################################
+# peco hitory
+#######################################
+peco-select-history() {
+     BUFFER=$(history | sort -k1,1nr | perl -ne 'BEGIN { my @lines = (); } s/^\s*\d+\s*//; $in=$_; if (!(grep {$in eq $_} @lines)) { push(@lines, $in); print $in; }' | peco --query "$LBUFFER")
+    CURSOR=${#BUFFER}
+    zle clear-screen
+}
+zle -N peco-select-history
+bindkey '^r' peco-select-history
+
+export PATH="/usr/local/opt/imagemagick@6/bin:$PATH"
